@@ -356,6 +356,7 @@
         curTextSize     = 12,
         curTextFont     = "Arial",
         getLoaded       = false,
+        styleStack      = [],
         start           = ( new Date ).getTime();
 
     var firstX,
@@ -678,8 +679,41 @@
     p.popMatrix   = function popMatrix()      { curContext.restore();           };
     p.ortho       = function ortho(){};
 
+    ////////////////////////////////////////////////////////////////////////////
+    // Style stack
+    ////////////////////////////////////////////////////////////////////////////
 
-    
+    p.pushStyle   = function pushStyle() {
+      styleStack.push({
+        doFill: doFill,
+        doStroke: doStroke,
+        curRectMode: curRectMode,
+        curEllipseMode: curEllipseMode,
+        curBackground: curBackground,
+        curShape: curShape,
+        curColorMode: curColorMode,
+        curTint: curTint,
+        curTextSize: curTextSize,
+        curTextFont: curTextFont,
+        fillStyle: curContext.fillStyle,
+      });
+      curContext.save();
+    }
+
+    p.popStyle = function() { 
+      s = styleStack.pop();
+      doFill = s.doFill;
+      doStroke = s.doStroke;
+      curRectMode = s.curRectMode;
+      curEllipseMode = s.curEllipseMode;
+      curBackground = s.curBackground;
+      curShape = s.curShape;
+      curColorMode = s.curColorMode;
+      curTint = s.curTint;
+      curTextSize = s.curTextSize;
+      curContext.restore();
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     //Time based functions
     ////////////////////////////////////////////////////////////////////////////
