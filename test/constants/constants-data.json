@@ -1,0 +1,244 @@
+{
+  "vertex_array": {
+    "description":   "an array of floats and booleans describing a vertex",
+    "used":          false,
+    "reason_unused": "a vertex is represented through an internal structure to canvas in PJS, so no need for this special array",
+    "original_type": "int", 
+    "constants": {
+      "X": {
+        "description": "X_coord",                              
+        "original_value": 0
+      },
+      "Y": {
+        "description": "Y_coord",                              
+        "original_value": 1
+      },
+      "Z": {
+        "description": "Z_coord",                              
+        "original_value": 2
+      },
+      "R": {
+        "description": "red, after lighting",                  
+        "original_value": 3
+      },
+      "G": {
+        "description": "green, after lighting",                
+        "original_value": 4
+      },
+      "B": {
+        "description": "blue, after lighting",                 
+        "original_value": 5
+      },
+      "A": {
+        "description": "Alpha",                                
+        "original_value": 6
+      },
+      "U": {
+        "description": "U_coord (for UV texture map)",         
+        "original_value": 7
+      },
+      "V": {
+        "description": "V_coord (for UV texture map)",         
+        "original_value": 8
+      },
+      "NX": {
+        "description": "normal X_coord",                       
+        "original_value": 9
+      },
+      "NY": {
+        "description": "normal Y_coord",                       
+        "original_value": 10
+      },
+      "NZ": {
+        "description": "normal Z_coord",                       
+        "original_value": 11
+      },
+      "EDGE": {
+        "description": "edge boolean (0 or 1)",                
+        "original_value": 12
+      },
+      "SR": {
+        "description": "stroke red",                           
+        "original_value": 13
+      },
+      "SG": {
+        "description": "stroke green",                         
+        "original_value": 14
+      },
+      "SB": {
+        "description": "stroke blue",                          
+        "original_value": 15
+      },
+      "SA": {
+        "description": "stroke alpha",                         
+        "original_value": 16
+      },
+      "SW": {
+        "description": "stroke weight",                        
+        "original_value": 17
+      },
+      "TX": {
+        "description": "transformed X_coord",                  
+        "original_value": 18
+      },
+      "TY": {
+        "description": "transformed Y_coord",                  
+        "original_value": 19
+      },
+      "TZ": {
+        "description": "transformed Z_coord",                  
+        "original_value": 20
+      },
+      "VX": {
+        "description": "view_space X_coord",                   
+        "original_value": 21
+      },
+      "VY": {
+        "description": "view_space Y_coord",                   
+        "original_value": 22
+      },
+      "VZ": {
+        "description": "view_space Z_coord",                   
+        "original_value": 23
+      },
+      "VW": {
+        "description": "view space W_coord",                   
+        "original_value": 24
+      },
+      "AR": {
+        "description": "ambient color red",                    
+        "original_value": 25
+      },
+      "AG": {
+        "description": "ambient color green",                  
+        "original_value": 26
+      },
+      "AB": {
+        "description": "ambient color blue",                   
+        "original_value": 27
+      },
+      "DR": {
+        "description": "diffuse red (shared with fill)",                          
+        "original_value": 3
+      },
+      "DG": {
+        "description": "diffuse green (shared with fill)",                        
+        "original_value": 4
+      },
+      "DB": {
+        "description": "diffuse blue (shared with fill)",                         
+        "original_value": 5
+      },
+      "DA": {
+        "description": "diffuse alpha (shared with fill)",                        
+        "original_value": 6
+      },
+      "SPR": {
+        "description": "specular red",                         
+        "original_value": 28
+      },
+      "SPG": {
+        "description": "specular green",                       
+        "original_value": 29
+      },
+      "SPB": {
+        "description": "specular blue",                        
+        "original_value": 30
+      },
+      "SHINE": {
+        "description": "shininess",                            
+        "original_value": 31
+      },
+      "ER": {
+        "description": "emissive red",                         
+        "original_value": 32
+      },
+      "EG": {
+        "description": "emissive green",                       
+        "original_value": 33
+      },
+      "EB": {
+        "description": "emissive blue",                        
+        "original_value": 34
+      },
+      "BEEN_LIT": {
+        "description": "has this vertex been lit yet",         
+        "original_value": 35
+      },
+      "VERTEX_FIELD_COUNT": {
+        "description": "number of fields in the vertex array", 
+        "original_value": 36
+      }
+    }
+  },
+
+  "renderers": {
+    "description":   "renderers known to processing.core",
+    "original_type": "String",
+    "constants": {
+      "P2D": {
+        "description": "2D Graphics renderer",
+        "original_value": "processing.core.PGraphics2D",
+        "used": false
+      },
+      "P3D": {
+        "description": "3D Graphics renderer",
+        "original_value": "processing.core.PGraphics3D",
+        "used": false
+      },
+      "JAVA2D": {
+        "description": "Java2D graphics renderer",
+        "original_value": "processing.core.PGraphicsJava2D",
+        "used": false
+      },
+      "OPENGL": {
+        "description": "OpenGL renderer",
+        "original_value": "processing.opengl.PGraphicsOpenGL",
+        "used": false
+      },
+      "PDF": {
+        "description": "Renderer for outputting PDF",
+        "original_value": "processing.pdf.PGraphicsPDF",
+        "used": false
+      },
+      "DXF": {
+        "description": "Render for outputting DXF files",
+        "original_value": "processing.dxf.RawDXF",
+        "used": false
+      }
+    }
+  },
+
+  "applet_platforms": {
+    "description":   "platform IDs for PApplet.platform",
+    "used":           false,
+    "reason_unused": "no applet necessary for PJS, therefore no need to detect platform",
+    "constants": {
+      "OTHER": {
+        "description": "Other OS",
+        "original_type": "int",
+        "original_value": 0
+      },
+      "WINDOWS": {
+        "description": "Microsoft Windows",
+        "original_type": "int",
+        "original_value": 1
+      },
+      "MACOSX": {
+        "description": "Mac OS X",
+        "original_type": "int",
+        "original_value": 2
+      },
+      "LINUX": {
+        "description": "GNU/Linux",
+        "original_type": "int",
+        "original_value": 3
+      },
+      "platformNames": {
+        "description": "array of platform names",
+        "original_type": "String[]",
+        "original_value": ["other", "windows", "macosx", "linux"]
+      }
+    } 
+  }
+}

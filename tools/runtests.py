@@ -2,8 +2,10 @@
 # inspired by - http://mxr.mozilla.org/mozilla-central/source/testing/xpcshell/runxpcshelltests.py
 import sys, os, os.path, signal, re
 import jsshellhelper
+import json
 from optparse import OptionParser
 from subprocess import Popen, PIPE, STDOUT
+import pdb
 
 # Uses jsshell https://developer.mozilla.org/en/Introduction_to_the_JavaScript_shell
 
@@ -42,7 +44,107 @@ class ProcessingTests(object):
           # assume this is a dir, so just look for the pattern in the path
           if testPath.find(testPattern) > -1:
             return False
-      return True
+        return True
+
+  def runConstantTests(self, jsshell, testPattern=None, summaryOnly=False):
+        """Load constants data .json and run through the constant test harness,
+        ensuring all constants behave as annotated in the constants.json file"""
+        jsshell        = os.path.abspath(jsshell)
+        constants_path = os.path.join(self.toolsdir, '..', 'test', 'constants', 'constants-data.json')
+        constants_file = open(constants_path, 'r')
+        constants_data = json.load(constants_file)
+        
+        for group_name, group_data in constants_data.iteritems():
+            group_description = group_data['description']
+            for constant, constant_data in group_data['constants'].iteritems():
+                constant_used  = constant_data.get('used', group_data.get('used', True))
+                expected_value = constant_data.get('pjs_value', group_data.get('pjs_value',
+                                    constant_data.get('original_value', group_data.get('original_value', False))))
+                shouldFail     = False
+                if constant_used:
+                    test_body  = '_checkEqual(' + constant  + ', ' + str(expected_value) + ');\n'
+                else:
+                    test_body  = '_checkNotEqual(' + constant  + ', ' + str(expected_value) + ');\n'
+                    shouldFail = True
+                
+                testCmd = [jsshell,
+                            '-f', os.path.join(self.toolsdir, 'fake-dom.js'),
+                            '-f', os.path.join(self.toolsdir, '..', 'processing.js'),
+                            '-f', os.path.join(self.toolsdir, 'cleaner.js'),
+                            '-f', os.path.join(self.toolsdir, 'test-harness.js'),
+                            '-e', "eval(Processing(canvas, 'UnitTests();' + '" + test_body + "' + '_printTestSummary();'));"
+                            ]
+                proc = Popen(testCmd, stdout=PIPE, stderr=PIPE)
+                stdout, stderr = proc.communicate()
+
+                if stderr:
+                    # we failed to parse, and died in the js shell
+                    if summaryOnly:
+                        if self.isKnownFailure(fullpath):
+                            sys.stdout.write('K')
+                            self.testsFailedKnown += 1
+                        else:
+                            sys.stdout.write('F')
+                            self.testsFailed += 1
+                            sys.stdout.flush()
+                    else:
+                        if shouldFail:
+                            print "KNOWN-FAILURE: " + constant
+                            self.testsFailedKnown += 1
+                        else:
+                            print "TEST-FAILED: " + constant
+                            print stderr
+                            self.testsFailed += 1
+                elif stdout:
+                    # TEST-SUMMARY: passed/failed
+                    m = re.search('^TEST-SUMMARY: (\d+)/(\d+)', stdout, re.MULTILINE)
+                    if m and m.group:
+                        self.testsPassed += int(m.group(1))
+                    if shouldFail: 
+                        self.testsFailedKnown += int(m.group(2))
+                    else:
+                        self.testsFailed += int(m.group(2))
+
+                    if int(m.group(2)) > 0:
+                        if summaryOnly:
+                            if shouldFail:
+                                sys.stdout.write('K')
+                            else:
+                                sys.stdout.write('F')
+                                sys.stdout.flush()
+                        else:
+                            if shouldFail:
+                                print "KNOWN-FAILURE: " + constant
+                            else:
+                                print "TEST-FAILED: " + constant
+                                print re.sub("\n?TEST-SUMMARY: (\d+)\/(\d+)\n?", "", stdout)
+                                print stderr
+                    else:
+                        if summaryOnly:
+                            if shouldFail:
+                                # we should pass if we are expecting to fail!
+                                sys.stdout.write('!')
+                            else:
+                                sys.stdout.write('.')
+                                sys.stdout.flush()
+                        else:
+                            if shouldFail:
+                                # we shouldn't pass if we are expecting to fail!
+                                print "TEST-FAILED (known failure passed!): " + fullpath
+                                self.testsPassed -= 1
+                                self.testsFailed += 1
+                            else:
+                                print "TEST-PASSED: " + fullpath
+                else:
+                    # Shouldn't happen!
+                    self.testsFailed += 1
+                    if summaryOnly:
+                        sys.stdout.write('F')
+                        sys.stdout.flush()
+                    else:
+                        print "TEST-FAILED: " + fullpath + ". Test died:"
+                        print stdout
+
 
   def runParserTests(self, jsshell, testPattern=None, summaryOnly=False):
       """Get all .pjs in test/parser/ files as JSON, and run through the test harness, faking a DOM"""
@@ -263,6 +365,9 @@ def main():
     parser.add_option("-u", "--unit-only",
                       action="store_true", dest="unitOnly", default=False,
                       help="only run unit tests.")
+    parser.add_option("-c", "--constant-only",
+                      action="store_true", dest="constantOnly", default=False,
+                      help="only run constant tests.")
     parser.add_option("-t", "--single-test",
                       type="string", dest="testPattern", default=None,
                       help="single test filename or dir to be tested")
@@ -279,9 +384,12 @@ def main():
         ptests.runParserTests(args[0], testPattern=options.testPattern, summaryOnly=options.summaryOnly)
     elif options.unitOnly:
         ptests.runUnitTests(args[0], testPattern=options.testPattern, summaryOnly=options.summaryOnly)
+    elif options.constantOnly:
+        ptests.runConstantTests(args[0], testPattern=options.testPattern, summaryOnly=options.summaryOnly)
     else:
         ptests.runParserTests(args[0], testPattern=options.testPattern, summaryOnly=options.summaryOnly)
         ptests.runUnitTests(args[0], testPattern=options.testPattern, summaryOnly=options.summaryOnly)
+        ptests.runConstantTests(args[0], testPattern=options.testPattern, summaryOnly=options.summaryOnly)
 
     print "\nTEST SUMMARY: %s passed, %s failed (%s known), %s total" % (ptests.testsPassed,
                                                                          ptests.testsFailed,

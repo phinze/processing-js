@@ -59,6 +59,9 @@ check-lint:
 check-parser:
 	$(TOOLSDIR)/runtests.py -p $(JS)
 
+check-constants:
+	$(TOOLSDIR)/runtests.py -c $(JS)
+
 check-unit:
 	$(TOOLSDIR)/runtests.py -u $(JS)
 
